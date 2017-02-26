@@ -1,0 +1,31 @@
+World
+- map exists as a low res cylinder of high level features
+- landing pads
+- drone home
+- other station feature
+ - consider features with height
+- Object location array
+- Ships coming and going 
+ - Z movement?
+Rendering
+- shade curvature by poking scanline pixels
+- Fill tile arrays based on velocity?
+- Camera: Lag behind drone up to some maximum (defined by drone velocity?)
+- Squash sprites up the walls?
+- Drone needs black mask to stand out from bg features
+Mechanics
+- Objects' world locations defined by X coord and angle
+- Controls - import from LC and replace vy with avy
+- Collision detection - screen pix or world location based?
+- Map/scanner that shows POIs relative to current location, or directional arrows on main display?
+Locations
+- Station interior (concave)
+- Station exterior (convex)
+Gameplay
+- Timed levels, with a number of tasks per mission. Bonus depending on remaining time? 
+- Repair tiles
+- Collect objects from pads
+- Bring objects to pads
+- Clean up free floating junk
+- Retrieve dropped cargo
+- Floating humans 
