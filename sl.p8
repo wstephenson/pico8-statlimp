@@ -393,7 +393,6 @@ function states.play:init_map()
 			local s=0
 			if((j-1)%4==0)then
 				s=127+flr((j-1)/4)
-				printh("setting sector "..j.." to sprite "..s)
 			else
 				s=flr(rnd(8)+48)
 			end
@@ -404,12 +403,20 @@ end
 
 function states.play:init()
 	self.tiles={}
- -- the angle of the centre of the viewport
-	self.ang=0
-	-- the angle of the origin of the station cyl
-	self.s_ang=0
-	self.c_ang=0
-	self.l_ang=0
+	-- the angle of the centre of the viewport, relative to world 0
+	self.v_ang=0
+	-- the angle of the origin of the world
+	self.w_ang=0
+	-- the angle of the limpet
+	self.a=0
+	-- the x coord of the limpet
+	self.x=60
+	-- other limpet flight stuff
+	self.vx=0
+	self.av=0
+	self.tx=0
+	self.ty=0
+	--
 	self:init_map()
 	sfx(6)
 	tinc=0.05
@@ -421,7 +428,7 @@ function states.play:init()
 	self.tobj.x=64
 	self.tobj.a=0
 	self.tobj.s=43
-	self.pavy=0
+	self.pav=0
 	self.lindex=current_limpet
 	self.limpet=limpets[self.lindex]
 	self.next_state="briefing"
@@ -444,12 +451,6 @@ function states.play:init()
 	self.fuel_bubble=nil
 	self.last_fuel_bubble=0
 	self.oxygen=20
-	self.x=60
-	self.y=72
-	self.vx=0
-	self.avy=0
-	self.tx=0
-	self.ty=0
 	self.txneg=false
 	self.txpos=false
 	self.tyneg=false
@@ -471,22 +472,23 @@ function states.play:init()
 end
 
 function states.play:draw_world()
-	for k=1,16 do
-		for i=1,#self.tiles[k] do
-			local s=self.tiles[k][i]
-			local th=i/#self.tiles[k]+self.ang/100
-			local sin_th=sin(th)
-			if(sin_th<0)then
-				local x=(k-1)*8+12+sin_th*12
-				local y=cos(th)*72+64
+	for track=1,16 do
+		local sc=#self.tiles[track]
+		for tile=1,sc do
+			local s=self.tiles[track][tile]
+			local th=tile/sc+(self.w_ang/100)+(self.v_ang/100)
+			local cos_th=cos(th)
+			if(cos_th>0)then
+				local x=(track-1)*8+12+cos_th*12
+				local y=sin(th)*60+64
 				local c=5
-				if(i==1)then
+				if(tile==1)then
 					c=8
 				else
-					if(sin_th<-0.85)then
+					if(cos_th>0.85)then
 						c=6
 					else
-						if(sin_th<-0.5)then
+						if(cos_th>0.5)then
 							c=13
 						end
 					end
@@ -500,13 +502,13 @@ function states.play:draw_world()
 end
 
 function states.play:draw_object(obj)
-	local th=obj.a/100+self.ang/100
-	local sin_th=sin(th)
-	if(sin_th<0)then
-		local x=obj.x+12+sin_th*12
-		local y=cos(th)*72+64
+	local th=(self.w_ang/100)+(obj.a/100)+(self.v_ang/100)
+	local x=obj.x+12+cos(th)*6
+	local y=sin(th)*56+64
+	if(cos(th)>0)then
 		spr(obj.s,x,y)
 	end
+	return x,y
 end
 
 function states.play:draw()
@@ -543,35 +545,34 @@ function states.play:draw()
 	-- foreground objects
 
 	-- drone
-	-- camera lag
- local cl=self.pavy/maxav
-	local y=self.y+cl*12
-	-- drop shadow distance depends upon the magnitude of pavy from -pavy, whichis limited to +maxav
- local sdist=12-8*(self.pavy+maxav)/(2*maxav)
-	palt(5,true)
-	palt(0,false)
- spr(44,self.x+sdist,y+sdist)
-	palt()
-
 	pal(13,self.limpet.fg)
 	pal(5,self.limpet.bg)
-	spr(self.lindex-1, self.x, y)
-	spr(22,self.x-8,y)
-	spr(23,self.x+8,y)
-	pal()
+	local x,y=self:draw_object(self)
+	-- drop shadow distance depends upon the magnitude of pav from -pav, whichis limited to +maxav
+ --local sdist=12-8*(self.pav+maxav)/(2*maxav)
+ local sdist=8
+	palt(5,true)
+	palt(0,false)
+ spr(44,x+sdist,y+sdist)
+	palt()
 
+	-- TODO set the drone sprite when player chooses active drone
+	--spr(self.lindex-1, self.x, y)
+	spr(22,x-8,y)
+	spr(23,x+8,y)
+	pal()
+	--]]
 	-- grabbed object
 	if(self.object != nil)then
-	spr(self.object.c,self.object.x,self.object.y)
+		self:draw_object(self.object)
 	end
 
 	-- grabber
 	if(self.grabbed)then
-	spr(15, self.x, y-8)
+		spr(15, x, y-8)
 	else
-	spr(14, self.x, y-8)
+		spr(14, x, y-8)
 	end	
-
 	-- thrust
 	local toff=0
 	local tmin=0.001
@@ -582,7 +583,7 @@ function states.play:draw()
 			toff=5
 		end
 		if(objtimer%2==0)then
-			spr(4+toff,self.x+8, y)
+			spr(4+toff,x+8, y)
 		end
 	end
 	if(self.txpos)then
@@ -591,7 +592,7 @@ function states.play:draw()
 			toff=5
 		end
 		if(objtimer%2==0)then
-			spr(5+toff,self.x-8, y)
+			spr(5+toff,x-8, y)
 		end
 	end
 	if(self.tyneg)then
@@ -600,7 +601,7 @@ function states.play:draw()
 			toff=5
 		end
 		if(objtimer%2==0)then
-			spr(8+toff,self.x, y+8)
+			spr(8+toff,x, y+8)
 		end
 	end
 	if(self.typos)then
@@ -609,8 +610,8 @@ function states.play:draw()
 			toff=5
 		end
 		if(objtimer%2==0)then
-			spr(6+toff,self.x-8, y)
-			spr(7+toff,self.x+8, y)
+			spr(6+toff,x-8, y)
+			spr(7+toff,x+8, y)
 		end
 	end
 
@@ -665,12 +666,14 @@ function states.play:draw_debug()
 	if(true) then
 		camera(0,-16)
 		print("x:"..self.x, 0, 94, 7)
-		print("la:"..self.l_ang, 30, 94, 7)
 		print("vx:"..self.vx, 0, 100, 7)
-		print("avy:"..self.avy, 30, 100, 7)
 		print("tx:"..self.tx, 0, 107, 7)
-		print("ty:"..self.ty, 30, 107, 7)
-		print("a:"..self.ang, 75, 94, 7)
+		print("sa:"..self.w_ang, 42, 94, 7)
+		print("av:"..self.av, 42, 100, 7)
+		print("ty:"..self.ty, 42, 107, 7)
+		print("la:"..self.a, 87, 94, 7)
+		print("va:"..self.v_ang, 87, 100, 7)
+		print("oa:"..self.tobj.a, 87, 107, 7)
 		--print("i:"..(self.object and self.object.c or '%'), 0, 114, 7)
 		camera()
 	end
@@ -690,29 +693,14 @@ end
 function states.play:update()
 	-- update event timer
 	objtimer+=1
-	-- imported
-	self.s_ang-=0.33
-	if(self.s_ang>99)self.s_ang=0
+	
  -- save previous acceleration for camera lag
-	self.pavy=self.avy
---[[
-	if(btn(2))then
-		self.c_ang-=2
-		if(self.c_ang<0)then c_ang=99 end
-	end
-	if(btn(3))then
-		self.c_ang+=2
-		if(self.c_ang>99)then c_ang=0 end
-	end
---]]
-	self.c_ang = self.l_ang+self.pavy
-	self.ang=(self.s_ang+self.c_ang)%100
--- import END
+	self.pav=self.av
 
 	local vx = self.vx
-	local avy = self.avy
+	local av = self.av
 	local x = self.x
-	local l_ang = self.l_ang
+	local a = self.a
 	local grabbed = self.grabbed
 
 	-- controls
@@ -797,66 +785,69 @@ function states.play:update()
 	end
 	-- apply acceleration
 	vx+=self.tx
-	avy+=self.ty
+	av+=self.ty
 	-- abs limits
 	vx=clamp(vx,-maxv,maxv)
-	avy=clamp(avy,-maxav,maxav)
+	av=clamp(av,-maxav,maxav)
 	-- drag
 	vx-=vx/12
-	avy-=avy/12
+	av-=av/12
 	-- null out residuals
 	if (abs(vx) < 0.005) then
 		vx = 0
 	end
-	if (abs(avy) < 0.005) then
-		avy = 0
+	if (abs(av) < 0.005) then
+		av = 0
 	end
 	-- update position
 	x+=vx
-	l_ang+=avy
+	a+=av
 	if(x<=0 or x>=120)then vx=0 self.tx=0 end
-	if(l_ang<=0)then l_ang=99.999 end
- if(l_ang>=100)then l_ang=0 end
+	if(a<=0)then a=99.999 end
+ if(a>=100)then a=0 end
 
 	x=clamp(x,0,120)
 
 	-- save temporaries
 	self.vx = vx
-	self.avy = avy
+	self.av = av
 	self.x = x
-	self.l_ang = l_ang
+	self.a = a
 	self.grabbed = grabbed
 
+-- imported
+	self.w_ang-=0.33
+	self.w_ang=self.w_ang%100
+ -- view tracks object, by negating obj's angle, and world angle
+	self.v_ang=-(self.a+self.w_ang)
+	self.v_ang=self.v_ang%100	
+-- import END
  --[[
 	activity[mission.name].spawn_objects(self)
 
 	activity[mission.name].envt_update(self)
 
 	activity[mission.name].envt_damage(self)
+	--]]
 
  -- move held object
 	if(self.object)then
 		self.object.x=self.x
-		self.object.y=self.y-8
+		self.object.a=self.a+1
 	end
 
 	-- move objects
 	for item in all(self.objects) do
-		-- piracy: ships in motion
-		if(mission.name=="piracy")then
-			item.x+=0.4
-		end
 		item.x += item.vx
-		item.y += item.vy
+		item.a += item.av
 		if(item.s!=42)then
 			item.vx-=item.vx/(rnd(25)+75)
-			item.vy-=item.vy/(rnd(25)+75)
+			item.av-=item.av/(rnd(25)+75)
 		end
 		if(item.ttl!=-1 and item!=self.object)then
 			item.ttl-=1
 		end
 	end
-
 	-- object release
 	if(not self.grabbed and self.object)then
 		sfx(1)
@@ -869,14 +860,14 @@ function states.play:update()
 				self.next_state="summary"
 				update_state()
 			end
-			if(self.object==self.fuel_bubble) self:remove_fuel_bubble()
+			if(self.object==self.fuel_bubble)then self:remove_fuel_bubble()end
 			del(self.objects,self.object)
 			self.object=nil
 		else
 			self.object.x=self.x
-			self.object.y=self.y-10
+			self.object.a=self.a+3
 			self.object.vx=self.vx
-			self.object.vy=self.vy-0.5
+			self.object.av=self.av+0.3
 			self.object=nil
 		end
 	end
@@ -885,13 +876,12 @@ function states.play:update()
 	for item in all(self.objects) do
 		-- is it within the grab area
 		-- the grab area is 8 pixels above the drone +- 4
-		local x = self.x
-		local y = self.y
 		if(self.object==nil)then
-			if(self.grabbed==true and item.x > x-6 and item.x < x+6 and item.y > y-12 and item.y < y-8)then
+			if(self.grabbed==true and self:check_collision(self,item))then
 				self.object=item
 			end
 		end
+	--[[
 		local dead=false
 		-- crashes
 		if(item.collision and item!=self.object)then
@@ -903,16 +893,19 @@ function states.play:update()
 				dead=true
 			end
 		end
+	--]]
 		-- out of bounds, prune silently
-		if(item.x<-8 or item.x>128 or item.y<-8 or item.y>128)then
+		if(item.x<-8 or item.x>128)then
 			if(item==self.fuel_bubble)then self:remove_fuel_bubble() end
 			del(self.objects,item)
 		end
+	--[[
 		-- hit shield
 		if(item.s!=35 and self:hit_shield(self.shldx,self.shldy,self.shldr,item) and item!=self.object)then
 			self.shldf=true
 			dead=true
 		end
+	--]]
 		-- too old
 		if(item.ttl==0)then
 			dead=true
@@ -930,7 +923,6 @@ function states.play:update()
 		self:do_death()
 	end
 
-	--]]
 	for p in all(self.particles) do
 		p.x += p.xv
 		p.y += p.yv
@@ -941,6 +933,10 @@ function states.play:update()
 	age_transients(self.particles)
 end
 
+function states.play:check_collision(o1,o2)
+	return abs(o1.x-o2.x)<5 and abs(o1.a-o2.a)<1
+end
+	
 function states.play:critical_objects_present()
 	-- this needs to be updated on scoop
 	local criticals_outstanding={}
@@ -1039,7 +1035,8 @@ function states.play:hit_shield(sx,sy,sr,item)
 end
 
 function states.play:in_scoop()
-	return (self.object.x>=mission.scooprect[1] and self.object.x<=mission.scooprect[3] and self.object.y>=mission.scooprect[2] and self.object.y<=mission.scooprect[4])
+	return false
+	--return (self.object.x>=mission.scooprect[1] and self.object.x<=mission.scooprect[3] and self.object.y>=mission.scooprect[2] and self.object.y<=mission.scooprect[4])
 end
 
 function states.play:is_mission_complete(dropped_object)
