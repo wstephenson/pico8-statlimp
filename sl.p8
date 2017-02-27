@@ -463,27 +463,7 @@ function states.play:init()
 	self.deathtimer=0
 
 	self.objects={}
-	self.stars={}
 	self.dead_this_mission={}
-
- -- mining laser starts on
-	objtimer=self.laserson*30
-
-	--local testrock={}
-	--testrock.x = 64
-	--testrock.y = 32
-	--testrock.vx = 0
-	--testrock.vy = 0
-	--testrock.c = 0
-	--add(self.objects,testrock)
-
-	-- init background objects
-	for i=1,100 do
-		local star = {}
-		star.x = rnd(128)
-		star.y = rnd(128)
-		add(self.stars,star)
-	end
 
 	activity[mission.name].init(self)
 end
