@@ -417,6 +417,10 @@ function states.play:init()
 	tmax=1
 	maxv=3
 	maxav=1
+	self.tobj={}
+	self.tobj.x=64
+	self.tobj.a=0
+	self.tobj.s=43
 	self.pavy=0
 	self.lindex=current_limpet
 	self.limpet=limpets[self.lindex]
@@ -513,6 +517,16 @@ function states.play:draw_world()
 	end
 end
 
+function states.play:draw_object(obj)
+	local th=obj.a/100+self.ang/100
+	local sin_th=sin(th)
+	if(sin_th<0)then
+		local x=obj.x+12+sin_th*12
+		local y=cos(th)*72+64
+		spr(obj.s,x,y)
+	end
+end
+
 function states.play:draw()
 	cls()
 	self:draw_world()
@@ -551,6 +565,10 @@ function states.play:draw()
 	end
 --]]
 	-- foreground objects
+
+ -- test object
+	self:draw_object(self.tobj)
+
 	-- drone
 	-- camera lag
  local cl=self.pavy/maxav
