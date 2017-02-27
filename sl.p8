@@ -466,6 +466,8 @@ function states.play:init()
 	self.dead_this_mission={}
 
 	activity[mission.name].init(self)
+
+	spawn_object(self,self.tobj.x,self.tobj.a,0,0,self.tobj.s,-1,0)
 end
 
 function states.play:draw_world()
@@ -513,16 +515,10 @@ function states.play:draw()
 
 	self:draw_debug()
 	-- frame offset for motion effect
-	if(mission.name=="piracy")then
-		self.foffx=rnd(2)
-		self.foffy=rnd(2)
-	end
+
 	-- background
-	-- here goes nothing
-	--activity[mission.name].draw_bg(self)
 
-	-- draw_own_ship(self)
-
+	-- hud
 --[[
 	local spare=0
 	for i=1,#limpets do
@@ -545,9 +541,6 @@ function states.play:draw()
 	end
 --]]
 	-- foreground objects
-
- -- test object
-	self:draw_object(self.tobj)
 
 	-- drone
 	-- camera lag
@@ -621,19 +614,17 @@ function states.play:draw()
 		end
 	end
 
---[[
 	-- other objects
 	for item in all(self.objects)do
 		if(item != self.object) then
 			local soffset=0
 			-- special cased animation for spacemen
-			if(item.c==36)then
+			if(item.s==36)then
 				soffset = flr((objtimer%20) / 5)
 			end
-			spr(item.c+soffset, item.x, item.y)
+			self:draw_object(item)
 		end
 	end
---]]
 
  -- particles
 	for p in all(self.particles) do
@@ -731,7 +722,7 @@ function states.play:update()
 	self.tyneg=false
 
 	if(self.limpet.health>0)then
---[[
+
 		if(btn(4) or btn(5))then
 			if(not grabbed and self.grabber_cooldown==0) then
 				sfx(0)
@@ -744,7 +735,6 @@ function states.play:update()
 		if(self.grabber_cooldown>0) then
 			self.grabber_cooldown-=1
 		end
---]]
 
 		if(btn(0)) then
 			self.txneg=true
@@ -858,7 +848,7 @@ function states.play:update()
 		end
 		item.x += item.vx
 		item.y += item.vy
-		if(item.c!=42)then
+		if(item.s!=42)then
 			item.vx-=item.vx/(rnd(25)+75)
 			item.vy-=item.vy/(rnd(25)+75)
 		end
@@ -919,7 +909,7 @@ function states.play:update()
 			del(self.objects,item)
 		end
 		-- hit shield
-		if(item.c!=35 and self:hit_shield(self.shldx,self.shldy,self.shldr,item) and item!=self.object)then
+		if(item.s!=35 and self:hit_shield(self.shldx,self.shldy,self.shldr,item) and item!=self.object)then
 			self.shldf=true
 			dead=true
 		end
@@ -1008,7 +998,7 @@ end
 
 function states.play:do_score(item)
 	for i in all(mission.required) do
-		if(i.obj==item.c)then
+		if(i.obj==item.s)then
 			sfx(15)
 			self.limpet.health=min(self.limpet.health+20,100)
 			if(self.limpet.health>=30)then
@@ -1024,14 +1014,14 @@ end
 function states.play:do_drone_score(item)
 	local found=false
 	for i in all(self.limpet.score) do
-		if(i.obj==item.c)then
+		if(i.obj==item.s)then
 			i.count+=1
 			found=true
 			break;
 		end
 	end
 	if(not found) then
-		add(self.limpet.score,{obj=item.c,count=1})
+		add(self.limpet.score,{obj=item.s,count=1})
 	end
 end
 
@@ -1083,13 +1073,13 @@ function states.play:remove_fuel_bubble()
 	self.fuel_bubble=nil
 end
 
-function spawn_object(state,x,y,vx,vy,c,ttl,material,collision)
+function spawn_object(state,x,ang,vx,av,s,ttl,material,collision)
 	local obj={}
 	obj.x=x
-	obj.y=y
+	obj.a=ang
 	obj.vx=vx
-	obj.vy=vy
-	obj.c=c
+	obj.av=av
+	obj.s=s
 	obj.ttl=ttl
 	obj.material=material
  obj.collision=collision
