@@ -845,6 +845,7 @@ function states.play:update()
 	for item in all(self.objects) do
 		item.x += item.vx
 		item.a += item.av
+		item.a=item.a%100
 		if(item.s!=42)then
 			item.vx-=item.vx/(rnd(25)+75)
 			item.av-=item.av/(rnd(25)+75)
