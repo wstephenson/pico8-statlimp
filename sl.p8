@@ -882,6 +882,8 @@ function states.play:update()
 	for item in all(self.objects) do
 		-- is it within the grab area
 		-- the grab area is 8 pixels above the drone +- 4
+		self.couldgrab=self:check_grabbable(self,item)
+
 		if(self.object==nil)then
 			if(self.grabbed==true and self:check_collision(self,item))then
 				self.object=item
@@ -943,6 +945,11 @@ function states.play:check_collision(o1,o2)
 	return abs(o1.x-o2.x)<5 and abs(o1.a-o2.a)<1
 end
 	
+function states.play:check_grabbable(o1,o2)
+	local ad = angular_distance(o1,o2)
+	return abs(o1.x-o2.x)<5 and ad>2.5 and ad<3.5
+end
+
 function states.play:critical_objects_present()
 	-- this needs to be updated on scoop
 	local criticals_outstanding={}
@@ -1177,6 +1184,18 @@ function update_state()
 		state=next_state
 		states[state]:init()
 	end
+end
+
+function angular_distance(o1,o2)
+	local naive_d=o1.a-o2.a
+	local shortest_d=0
+	if(abs(naive_d)>50)then -- 50 is half the max angle of 100
+		shortest_d=100-abs(naive_d)
+	end
+	if(o1.a<o2.a)then
+		shortest_d=-shortest_d
+	end
+	return shortest_d
 end
 
 function collision_damage(o1,o2)
