@@ -138,7 +138,7 @@ function states.splash:init_activities_missions()
 			objects={26,27,28,29,30,31},
 			missions={{{26,1,2}},{{27,2,3},{28,2,3}},{{29,3,3}}},
 			init=function(state)
-				init_static_objects(state)
+				--init_static_objects(state)
 			end,
 			draw_bg=function(state)
 			end,
@@ -502,12 +502,17 @@ function states.play:draw_world()
 end
 
 function states.play:draw_object(obj)
+	if(self.couldgrab)then
+		pal(6,11)
+		pal(12,10)
+	end
 	local th=(self.w_ang/100)+(obj.a/100)+(self.v_ang/100)
 	local x=obj.x+12+cos(th)*6
 	local y=sin(th)*56+64
 	if(cos(th)>0)then
 		spr(obj.s,x,y)
 	end
+	pal()
 	return x,y
 end
 
