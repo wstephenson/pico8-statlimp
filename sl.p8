@@ -838,7 +838,7 @@ function states.play:update()
  -- move held object
 	if(self.object)then
 		self.object.x=self.x
-		self.object.a=self.a+1
+		self.object.a=self.a+2
 	end
 
 	-- move objects
