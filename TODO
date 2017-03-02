@@ -11,7 +11,7 @@ Rendering
 - z sort station sectors - sort by X displacement
 - shade curvature by poking scanline pixels
 - Fill tile arrays based on velocity?
-- Camera: Lag behind drone up to some maximum (defined by drone velocity?)
+* Camera: Lag behind drone up to some maximum (defined by drone velocity?)
 - Squash sprites up the walls?
 - Drone needs black mask to stand out from bg features
 Mechanics

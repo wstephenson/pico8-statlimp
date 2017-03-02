@@ -824,7 +824,7 @@ function states.play:update()
 	self.w_ang-=0.33
 	self.w_ang=self.w_ang%100
  -- view tracks object, by negating obj's angle, and world angle
-	self.v_ang=-(self.a+self.w_ang)
+	self.v_ang=-(self.a+self.w_ang+self.pav)
 	self.v_ang=self.v_ang%100	
 -- import END
  --[[
