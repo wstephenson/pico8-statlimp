@@ -882,10 +882,10 @@ function states.play:update()
 	for item in all(self.objects) do
 		-- is it within the grab area
 		-- the grab area is 8 pixels above the drone +- 4
-		self.couldgrab=self:check_grabbable(self,item)
 
 		if(self.object==nil)then
-			if(self.grabbed==true and self:check_collision(self,item))then
+			self.couldgrab=self:check_grabbable(self,item)
+			if(self.grabbed==true and self.couldgrab)then
 				self.object=item
 			end
 		end
