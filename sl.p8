@@ -1193,6 +1193,8 @@ function angular_distance(o1,o2)
 	local shortest_d=0
 	if(abs(naive_d)>50)then -- 50 is half the max angle of 100
 		shortest_d=100-abs(naive_d)
+	else
+		shortest_d=naive_d
 	end
 	if(o1.a<o2.a)then
 		shortest_d=-shortest_d
