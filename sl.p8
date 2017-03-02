@@ -949,7 +949,7 @@ end
 	
 function states.play:check_grabbable(o1,o2)
 	local ad = angular_distance(o1,o2)
-	return abs(o1.x-o2.x)<5 and ad>2.5 and ad<3.5
+	return abs(o1.x-o2.x)<5 and ad>2 and ad<3
 end
 
 function states.play:critical_objects_present()
