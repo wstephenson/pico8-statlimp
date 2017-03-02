@@ -843,15 +843,17 @@ function states.play:update()
 
 	-- move objects
 	for item in all(self.objects) do
-		item.x += item.vx
-		item.a += item.av
-		item.a=item.a%100
-		if(item.s!=42)then
-			item.vx-=item.vx/(rnd(25)+75)
-			item.av-=item.av/(rnd(25)+75)
-		end
-		if(item.ttl!=-1 and item!=self.object)then
-			item.ttl-=1
+		if(item!=self.object)then
+			item.x += item.vx
+			item.a += item.av
+			item.a=item.a%100
+			if(item.s!=42)then
+				item.vx-=item.vx/(rnd(25)+75)
+				item.av-=item.av/(rnd(25)+75)
+			end
+			if(item.ttl!=-1)then
+				item.ttl-=1
+			end
 		end
 	end
 	-- object release
