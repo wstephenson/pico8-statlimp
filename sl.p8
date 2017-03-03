@@ -387,16 +387,38 @@ function states.briefing:init_mission()
 end
 
 function states.play:init_map()
+	-- background
 	for i=1,16 do
 		self.tiles[i]={}
 		for j=1,48 do
 			local s=0
 			if((j-1)%8==0)then
+				-- sector stripe every 8 rows
 				s=127+flr((j-1)/8)+8
 			else
 				s=flr(rnd(8)+48)
 			end
 			self.tiles[i][j]=s
+		end
+	end
+	-- pads
+	for i=1,6 do
+		self:init_pad(3,i*8+3)
+	end
+end
+
+function states.play:init_pad(x,y)
+	assert(x>=1)
+	assert(y>=1)
+	-- this could also be procedural, only define the corners and
+	-- fill with elements
+	local pad_data={{64,29,32,32,30,64,26},{54,34,35,35,33,56,57},{64,27,31,31,28,64,54}}
+	for row=1,#pad_data do
+		for col=1,#pad_data[row] do
+			local tx=x-1+col
+			local ty=y-1+row
+			ty=(ty%48)+1
+			self.tiles[tx][ty]=pad_data[row][col]
 		end
 	end
 end
