@@ -1,13 +1,18 @@
 World
 - map exists as a low res cylinder of high level features
+  - draw functions for each feature?
+  - regular grid? 1x1, 2x1, 3x2, 6x3(sm as drawn), 8x4, 9x5 each sector is 16x7
 - landing pads
-- drone home
+- drone home (small pad)
+  - drone refuels on pad
 - other station feature
  - consider features with height
-- Object location array
+* Object location array
+- Drop zone array
 - Ships coming and going 
  - Z movement?
 Rendering
+- multi sprite objects
 - z sort station sectors - sort by X displacement
 - shade curvature by poking scanline pixels
 - Fill tile arrays based on velocity?
