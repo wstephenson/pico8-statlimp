@@ -391,8 +391,8 @@ function states.play:init_map()
 		self.tiles[i]={}
 		for j=1,48 do
 			local s=0
-			if((j-1)%4==0)then
-				s=127+flr((j-1)/4)
+			if((j-1)%8==0)then
+				s=127+flr((j-1)/8)+8
 			else
 				s=flr(rnd(8)+48)
 			end
