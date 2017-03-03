@@ -590,8 +590,8 @@ function states.play:draw()
 
 	-- TODO set the drone sprite when player chooses active drone
 	--spr(self.lindex-1, self.x, y)
-	spr(22,x-8,y)
-	spr(23,x+8,y)
+	spr(16,x-8,y)
+	spr(17,x+8,y)
 	pal()
 	--]]
 	-- grabbed object
