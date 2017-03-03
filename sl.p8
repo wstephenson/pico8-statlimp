@@ -506,6 +506,15 @@ function states.play:draw_world()
 	end
 end
 
+function states.play:draw_point(p,s)
+	local th=(self.w_ang/100)+(p.a/100)+(self.v_ang/100)
+	local x=p.x+12+cos(th)*6
+	local y=sin(th)*56+64
+	if(cos(th)>0)then
+		spr(s,x,y)
+	end
+end
+
 function states.play:draw_object(obj)
 	if(self.couldgrab)then
 		pal(6,11)
