@@ -824,11 +824,11 @@ function states.play:update()
 	-- y thrust
 	if(self.tyneg)then
 		self:consume_fuel()
-		self.ty=max(self.ty-tinc, -tmax)
+		self.ty=min(self.ty+tinc, tmax)
 	else
 		if(self.typos)then
 			self:consume_fuel()
-			self.ty=min(self.ty+tinc, tmax)
+			self.ty=max(self.ty-tinc, -tmax)
 		else
 			if(abs(self.ty)<0.01)then
 				self.ty=0
