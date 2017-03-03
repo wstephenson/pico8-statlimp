@@ -15,11 +15,13 @@ Rendering
 - Squash sprites up the walls?
 - Drone needs black mask to stand out from bg features
 Mechanics
-- Objects' world locations defined by X coord and angle
-- Controls - import from LC and replace vy with avy
-- Collision detection - screen pix or world location based?
+* Objects' world locations defined by X coord and angle
+* Controls - import from LC and replace vy with avy
+* Collision detection - screen pix or world location based?
   * World location based but figure out a way to determine the absolute proximity when the objects are divided by the 100 'degree' disconnect
 - Map/scanner that shows POIs relative to current location, or directional arrows on main display?
+* Do location checks on objects
+- Only perform collision checks on moved objects
 Locations
 - Station interior (concave)
 - Station exterior (convex)
