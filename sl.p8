@@ -464,6 +464,11 @@ function states.play:init()
 	self.deathtimer=0
 
 	self.objects={}
+	-- target zone(s) for object drops
+	self.zones={}
+	-- temp var for testing
+	--self.obj_in_zone=false
+	-- objects that moved
 	self.dead_this_mission={}
 
 	activity[mission.name].init(self)
@@ -855,6 +860,7 @@ function states.play:update()
 				item.ttl-=1
 			end
 		end
+		self:obj_in_zone(item)
 	end
 	-- object release
 	if(not self.grabbed and self.object)then
@@ -950,6 +956,14 @@ end
 function states.play:check_grabbable(o1,o2)
 	local ad = angular_distance(o1,o2)
 	return abs(o1.x-o2.x)<5 and ad>2 and ad<3
+end
+
+function states.play:obj_in_zone(o)
+	local in_zone=false
+	for z in all(self.zones) do
+		in_zone=in_zone or (o.x>=z.x1 and o.x<=z.x2 and angular_distance(o,{a=z.a1})>0 and angular_distance(0,{a=z.a2})<0)
+	end
+	return in_zone
 end
 
 function states.play:critical_objects_present()
