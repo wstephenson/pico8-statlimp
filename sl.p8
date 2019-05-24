@@ -403,16 +403,40 @@ function states.play:init_map()
 	end
 	-- pads
 	for i=1,6 do
-		self:init_pad(3,i*8+3)
+		self:init_pad(3,i*8+3,3,3)
 	end
 end
 
-function states.play:init_pad(x,y)
-	assert(x>=1)
-	assert(y>=1)
-	-- this could also be procedural, only define the corners and
-	-- fill with elements
-	local pad_data={{64,29,32,32,30,64,26},{54,34,35,35,33,56,57},{64,27,31,31,28,64,54}}
+function states.play:init_pad(x,y,w,h)
+	assert(x>=1 and y>=1 and w>=1 and h>=1)
+	--local pad_data={{64,29,32,32,30,64,26},{54,34,35,35,33,56,57},{64,27,31,31,28,64,54}}
+ -- left end
+	local pad_top_row={64,29}
+	local pad_middle_row={54,34}
+	local pad_bottom_row={64,27}
+ -- intervening elements	
+	for i=1,max(0,w-2) do
+		add(pad_top_row,32)
+		add(pad_middle_row,35)
+		add(pad_bottom_row,31)
+	end
+	-- right end
+	add(pad_top_row,30)
+	add(pad_top_row,64)
+	add(pad_top_row,26)
+	add(pad_middle_row,33)
+	add(pad_middle_row,56)
+	add(pad_middle_row,57) 
+	add(pad_bottom_row,28)
+	add(pad_bottom_row,64)
+	add(pad_bottom_row,54)
+
+	local pad_data={pad_top_row}
+	for j=1,max(0,h-2) do
+		add(pad_data,pad_middle_row)
+	end
+	add(pad_data,pad_bottom_row)	
+
 	for row=1,#pad_data do
 		for col=1,#pad_data[row] do
 			local tx=x-1+col
@@ -845,7 +869,7 @@ function states.play:update()
 	av=clamp(av,-maxav,maxav)
 	-- drag
 	vx-=vx/12
-	av-=av/12
+	--av-=av/12
 	-- null out residuals
 	if (abs(vx) < 0.005) then
 		vx = 0
